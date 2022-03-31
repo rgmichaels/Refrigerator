@@ -1,0 +1,2 @@
+Turn fan on and off with relay
+Turn refigerator power off and on with relay

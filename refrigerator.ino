@@ -1,10 +1,7 @@
-// By R. Michaels
-
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
 
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
 
@@ -15,6 +12,8 @@ int HighTemp = 70;
 float R1 = 100000;
 float logR2, R2, T;
 float c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
+float temp;
+
 
 void setup() {
   Serial.begin(9600);
@@ -28,32 +27,28 @@ void setup() {
   // Clear the buffer.
   display.clearDisplay();
   display.display();
-
 }
 
-void loop() {
-
-
-  
+float CalculateTemp(){
   Vo = analogRead(ThermistorPin);
   R2 = R1 * (1023.0 / (float)Vo - 1.0);
   logR2 = log(R2);
   T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2));
   T = T - 273.15;
-  T = (T * 9.0)/ 5.0 + 32.0;
+  T = (T * 9.0)/ 5.0 + 32.0; 
+  return T;
+}
+
+void loop() {
+  T = CalculateTemp();
 
 if (T > HighTemp) //If (T)emperature is > than the HighTemp setting
 {
   while (T > LowTemp) {
       // Turn on light/fan
       digitalWrite(LED_BUILTIN, HIGH); //Turn LED ON
-      // Read current temp
-      Vo = analogRead(ThermistorPin);
-      R2 = R1 * (1023.0 / (float)Vo - 1.0);
-      logR2 = log(R2);
-      T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2));
-      T = T - 273.15;
-      T = (T * 9.0)/ 5.0 + 32.0;
+
+      T = CalculateTemp();     
       
       // Display current temperature on screen
       display.clearDisplay();
@@ -69,7 +64,7 @@ if (T > HighTemp) //If (T)emperature is > than the HighTemp setting
 }
 }
 
-  // text display tests
+  // Display Temperature
   digitalWrite(LED_BUILTIN, LOW); //Turn LED ON
   display.clearDisplay();
   display.setTextSize(1);
